@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusRetain | Lost & Found Hub</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2dd4bf;
+            --secondary: #a78bfa;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --gradient: linear-gradient(135deg, #2dd4bf 0%, #8b5cf6 100%);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Float Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .hidden { display: none !important; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary { background: var(--gradient); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(45, 212, 191, 0.4); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: var(--secondary); }
+
+        /* Navigation */
+        nav {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 18px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-dim); font-weight: 500; transition: 0.3s; cursor: pointer; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0 60px;
+            text-align: center;
+            background: radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.2), transparent);
+        }
+        .hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 20px; letter-spacing: -1px; }
+        .hero p { font-size: 1.2rem; color: var(--text-dim); max-width: 650px; margin: 0 auto 40px; }
+
+        /* Filter Tabs */
+        .filters { display: flex; gap: 10px; margin-bottom: 40px; overflow-x: auto; padding-bottom: 10px; }
+        .filter-chip {
+            padding: 8px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.3s;
+            color: var(--text-dim);
+        }
+        .filter-chip.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+
+        /* Cards Grid */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            padding-bottom: 60px;
+        }
+
+        .item-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+        }
+        .item-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: var(--shadow); }
+        .item-img-container { width: 100%; height: 200px; background: #2d3748; position: relative; overflow: hidden; }
+        .item-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .item-card:hover .item-img { transform: scale(1.1); }
+        
+        .item-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+        }
+        .badge-lost { background: #fee2e2; color: #ef4444; }
+        .badge-found { background: #dcfce7; color: #22c55e; }
+
+        .item-info { padding: 20px; }
+        .item-info h3 { font-size: 1.25rem; margin-bottom: 12px; }
+        .meta-line { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            border-radius: 32px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            position: relative;
+            animation: slideUp 0.4s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-body { padding: 30px; }
+        .contact-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            margin-bottom: 15px;
+            resize: none;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            background: var(--primary);
+            color: var(--bg-dark);
+            font-weight: 700;
+            border-radius: 16px;
+            z-index: 3000;
+            transform: translateY(150px);
+            transition: 0.4s;
+        }
+        #toast.show { transform: translateY(0); }
+
+        /* Form styling */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-dim); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 14px; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; color: white;
+        }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast">Update Successful</div>
+
+    <nav>
+        <div class="container nav-content">
+            <div class="logo" onclick="navigateTo('landing')">CampusRetain</div>
+            <div class="nav-links">
+                <a onclick="navigateTo('listings')">Directory</a>
+                <a onclick="navigateTo('dashboard')">My Reports</a>
+                <button class="btn btn-outline" id="auth-btn" onclick="handleAuth()">Sign In</button>
+            </div>
+        </div>
+    </nav>
+
+    <main id="app-content">
+        <!-- Landing Section -->
+        <section id="page-landing" class="container">
+            <div class="hero">
+                <h1 class="animate-float">Recover What's <span style="color: var(--primary)">Yours.</span></h1>
+                <p>The definitive Lost & Found network for university campuses. Verified students, real-time tracking, secure handovers.</p>
+                <div style="display:flex; gap:15px; justify-content:center;">
+                    <button class="btn btn-primary" onclick="navigateTo('listings')">Explore Directory</button>
+                    <button class="btn btn-outline" onclick="navigateTo('report')">Post a Report</button>
+                </div>
+            </div>
+            
+            <h2 style="margin-bottom: 30px;">Recent Activity</h2>
+            <div class="items-grid" id="landing-grid"></div>
+        </section>
+
+        <!-- Directory Section -->
+        <section id="page-listings" class="container hidden" style="padding-top: 40px;">
+            <h1>Global Directory</h1>
+            <div class="filters">
+                <div class="filter-chip active" onclick="filterItems('all', this)">All Items</div>
+                <div class="filter-chip" onclick="filterItems('lost', this)">Lost Reports</div>
+                <div class="filter-chip" onclick="filterItems('found', this)">Found Items</div>
+                <div class="filter-chip" onclick="filterItems('electronics', this)">Electronics</div>
+                <div class="filter-chip" onclick="filterItems('personal', this)">Personal</div>
+            </div>
+            <div class="items-grid" id="main-grid"></div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="page-dashboard" class="container hidden" style="padding-top: 40px;">
+            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:40px;">
+                <h1>My Dashboard</h1>
+                <button class="btn btn-primary" onclick="navigateTo('report')">Create New Report</button>
+            </div>
+            <div class="items-grid" id="user-grid"></div>
+        </section>
+
+        <!-- Report Form Section -->
+        <section id="page-report" class="container hidden" style="padding: 60px 0;">
+            <div style="max-width: 600px; margin: 0 auto; background: var(--bg-card); padding: 40px; border-radius: 30px; border: 1px solid var(--border);">
+                <h2>New Report</h2>
+                <p style="color: var(--text-dim); margin-bottom: 30px;">Provide accurate details to speed up recovery.</p>
+                
+                <div class="form-group">
+                    <label>Report Type</label>
+                    <select id="r-type">
+                        <option value="lost">I lost something</option>
+                        <option value="found">I found something</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="r-name" placeholder="e.g. Blue Backpack">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="r-loc" placeholder="Building, Room or Area">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="r-desc" rows="3" placeholder="Distinguishing features..."></textarea>
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="submitReport()">Publish Report</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="modal" class="modal-overlay hidden" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="item-img-container" style="height: 400px;">
+                <img id="m-img" class="item-img" onerror="imgError(this)">
+                <div id="m-badge" class="item-badge"></div>
+            </div>
+            <div class="modal-body">
+                <h1 id="m-title" style="margin-bottom: 20px;"></h1>
+                <div id="m-meta-box" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 15px;">
+                    <!-- Injected metadata -->
+                </div>
+                <p id="m-desc" style="margin-top: 30px; font-size: 1.1rem; color: var(--text-dim);"></p>
+
+                <div class="contact-box" id="contact-container">
+                    <h3>Contact Reporter</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px;">Sent securely via CampusRetain. You will receive an email notification.</p>
+                    <textarea id="m-msg" placeholder="Tell them when you're free to meet or ask a clarifying question..."></textarea>
+                    <button class="btn btn-primary animate-float" style="width: 100%;" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const items = [
+            { id: "CR-10021", type: "lost", title: "Silver iPad Pro 11", cat: "electronics", loc: "Law Library", date: "2023-11-01", user: "Michael", condition: "Pristine", reward: "Yes", desc: "Left it on a corner desk in the quiet zone. It has a magnetic black folio case.", img: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&q=80&w=800" },
+            { id: "CR-10022", type: "found", title: "Green Nalgene Bottle", cat: "personal", loc: "Gym Locker A", date: "2023-11-02", user: "Staff", condition: "Used", reward: "No", desc: "Found after the 5 PM basketball session. Covered in stickers from national parks.", img: "https://images.unsplash.com/photo-1602143307185-84487493375e?auto=format&fit=crop&q=80&w=800" },
+            { id: "CR-10023", type: "lost", title: "Sony WH-1000XM4", cat: "electronics", loc: "Campus Bus", date: "2023-11-02", user: "Alex", condition: "Good", reward: "$20", desc: "Black noise-cancelling headphones in their original hard case. Very important for my exams!", img: "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&q=80&w=800" },
+            { id: "CR-10024", type: "found", title: "Scientific Calculator", cat: "electronics", loc: "Math Hall 202", date: "2023-11-03", user: "Sarah", condition: "Used", reward: "No", desc: "Casio FX-991EX left on a back desk. Name 'Jordan' scratched on the back.", img: "https://images.unsplash.com/photo-1574607383476-f517f220d398?auto=format&fit=crop&q=80&w=800" },
+            { id: "CR-10025", type: "lost", title: "Car Keys (Tesla)", cat: "personal", loc: "North Parking Lot", date: "2023-11-03", user: "Professor Dave", condition: "Good", reward: "$50", desc: "Key fob with a red lanyard. Please return, I can't leave campus!", img: "https://images.unsplash.com/photo-1590402444587-438e6d355b3b?auto=format&fit=crop&q=80&w=800" },
+            { id: "CR-10026", type: "found", title: "Denim Jacket", cat: "clothing", loc: "Student Union", date: "2023-11-04", user: "Chris", condition: "Clean", reward: "No", desc: "Oversized denim jacket left in a booth. Has a small enamel pin of a cat.", img: "https://images.unsplash.com/photo-1576905341935-4ef2443449c0?auto=format&fit=crop&q=80&w=800" },
+            { id: "CR-10027", type: "lost", title: "AirPods Case (Empty)", cat: "electronics", loc: "Cafeteria", date: "2023-11-04", user: "Jenna", condition: "Scratched", reward: "Coffee", desc: "Just the charging case. It has a silicone cover shaped like a pineapple.", img: "https://images.unsplash.com/photo-1588423770574-910ae27c859f?auto=format&fit=crop&q=80&w=800" },
+            { id: "CR-10028", type: "found", title: "Silver Ring", cat: "personal", loc: "Science Plaza", date: "2023-11-05", user: "Liam", condition: "Shiny", reward: "No", desc: "Simple silver band found near the fountain. Engraving on the inside.", img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" }
+        ];
+
+        let state = {
+            user: "Alex",
+            page: "landing",
+            activeItems: [...items]
+        };
+
+        function imgError(img) {
+            img.onerror = null;
+            img.src = "https://via.placeholder.com/800x600/1e293b/2dd4bf?text=Item+Image+Not+Found";
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            state.page = pageId;
+            render();
+            window.scrollTo(0,0);
+        }
+
+        function createCard(item) {
+            const div = document.createElement('div');
+            div.className = 'item-card';
+            div.onclick = () => openModal(item);
+            div.innerHTML = `
+                <div class="item-badge badge-${item.type}">${item.type}</div>
+                <div class="item-img-container">
+                    <img src="${item.img}" class="item-img" onerror="imgError(this)">
+                </div>
+                <div class="item-info">
+                    <h3>${item.title}</h3>
+                    <div class="meta-line"><i class="fas fa-barcode"></i> ${item.id}</div>
+                    <div class="meta-line"><i class="fas fa-map-marker-alt"></i> ${item.loc}</div>
+                    <div class="meta-line"><i class="fas fa-calendar-alt"></i> ${item.date}</div>
+                </div>
+            `;
+            return div;
+        }
+
+        function render() {
+            if(state.page === 'landing') {
+                const grid = document.getElementById('landing-grid');
+                grid.innerHTML = '';
+                state.activeItems.slice(0, 4).forEach(i => grid.appendChild(createCard(i)));
+            }
+            if(state.page === 'listings') {
+                const grid = document.getElementById('main-grid');
+                grid.innerHTML = '';
+                state.activeItems.forEach(i => grid.appendChild(createCard(i)));
+            }
+            if(state.page === 'dashboard') {
+                const grid = document.getElementById('user-grid');
+                grid.innerHTML = '';
+                state.activeItems.filter(i => i.user === state.user).forEach(i => grid.appendChild(createCard(i)));
+            }
+        }
+
+        function filterItems(type, el) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = '';
+            
+            let filtered = state.activeItems;
+            if(type !== 'all') {
+                filtered = state.activeItems.filter(i => i.type === type || i.cat === type);
+            }
+            filtered.forEach(i => grid.appendChild(createCard(i)));
+        }
+
+        function openModal(item) {
+            const m = document.getElementById('modal');
+            document.getElementById('m-img').src = item.img;
+            document.getElementById('m-title').innerText = item.title;
+            document.getElementById('m-desc').innerText = item.desc;
+            document.getElementById('m-badge').innerText = item.type;
+            document.getElementById('m-badge').className = `item-badge badge-${item.type}`;
+            
+            document.getElementById('m-meta-box').innerHTML = `
+                <div><span style="color:var(--primary)">ID:</span> ${item.id}</div>
+                <div><span style="color:var(--primary)">User:</span> ${item.user}</div>
+                <div><span style="color:var(--primary)">Condition:</span> ${item.condition}</div>
+                <div><span style="color:var(--primary)">Reward:</span> ${item.reward}</div>
+            `;
+            
+            m.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function sendMessage() {
+            const msg = document.getElementById('m-msg').value;
+            if(!msg) return showToast("Enter a message first!");
+            
+            showToast("Encrypting Message...");
+            setTimeout(() => {
+                document.getElementById('contact-container').innerHTML = `
+                    <div style="text-align:center; padding: 20px;">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
+                        <h4>Message Transmitted!</h4>
+                        <p style="color: var(--text-dim)">The reporter has been notified. Check your inbox for replies.</p>
+                    </div>
+                `;
+                showToast("Message Sent!");
+            }, 1200);
+        }
+
+        function submitReport() {
+            const name = document.getElementById('r-name').value;
+            if(!name) return showToast("Title is required!");
+
+            const newItem = {
+                id: "CR-" + (10030 + state.activeItems.length),
+                type: document.getElementById('r-type').value,
+                title: name,
+                loc: document.getElementById('r-loc').value,
+                desc: document.getElementById('r-desc').value,
+                cat: "personal",
+                date: new Date().toISOString().split('T')[0],
+                user: state.user,
+                condition: "New Report",
+                reward: "Pending",
+                img: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800"
+            };
+
+            state.activeItems.unshift(newItem);
+            showToast("Report Published to Hub!");
+            navigateTo('dashboard');
+        }
+
+        function showToast(text) {
+            const t = document.getElementById('toast');
+            t.innerText = text;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
